@@ -6,7 +6,7 @@ class Singleton {
 private:
     static Singleton* instance; // 单例指针
     static std::mutex mutex_;   // 互斥锁
-    
+
     // 私有构造函数，防止外部new
     Singleton() {
         std::cout << "Singleton instance created\n";

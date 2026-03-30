@@ -27,7 +27,7 @@ int main() {
     Singleton& s2 = Singleton::getInstance();
 
     s1.doSomething();
-    
+
     // s1和s2是同一个对象
     std::cout << "Same instance? " << (&s1 == &s2 ? "Yes" : "No") << "\n";
 }
