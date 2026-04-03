@@ -1,0 +1,19 @@
+CompileFlags:
+  Add:
+    - "-std=c++11"
+    - "-Wall"
+    - "-Wextra"
+    - "-I/usr/include/c++/15.2.1"
+    - "-I/usr/include/c++/15.2.1/x86_64-pc-linux-gnu"
+    - "-I/usr/include/c++/15.2.1/backward"
+    - "-I/usr/lib/clang/22/include"
+    - "-I/usr/local/include"
+  Remove:
+    - "-fopenmp*"
+    - "-fsanitize=*"
+
+Index:
+  Background: Build
+
+Diagnostics:
+  UnusedIncludes: Strict

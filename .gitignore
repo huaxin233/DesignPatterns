@@ -9,6 +9,7 @@
 *.dylib
 *.a
 *.lib
+test.cc
 
 # Compiled Dynamic libraries
 *.so

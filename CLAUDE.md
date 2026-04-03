@@ -11,10 +11,10 @@ Documentation-only repository covering all 23 Gang of Four (GoF) design patterns
 Code examples are inline in `design_patterns.md` and meant to be extracted and compiled individually:
 
 ```bash
-g++ -std=c++17 -Wall -Wextra -o example example.cpp
+g++ -std=c++11 -Wall -Wextra -o example example.cpp
 ```
 
-Requires a C++11+ compiler (GCC, Clang, or MSVC).
+Requires a C++11 compiler (GCC, Clang, or MSVC). Do NOT use C++14/17/20 features.
 
 ## Architecture
 

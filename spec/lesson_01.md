@@ -62,6 +62,8 @@
 
 C++11 保证局部静态变量的初始化是线程安全的，这是最简洁的实现：
 
+**`singleton_meyers.cpp`**
+
 ```cpp
 #include <iostream>
 #include <string>
@@ -92,7 +94,7 @@ public:
 };
 ```
 
-**客户端代码**：
+**`singleton_meyers.cpp`** — 客户端代码：
 
 ```cpp
 int main() {
@@ -115,6 +117,8 @@ int main() {
 ```
 
 #### 版本 2：双重检查锁定（经典面试考点）
+
+**`singleton_dclp.cpp`**
 
 ```cpp
 #include <iostream>
@@ -156,7 +160,7 @@ std::unique_ptr<DatabaseConnection> DatabaseConnection::instance_ = nullptr;
 std::mutex DatabaseConnection::mutex_;
 ```
 
-**客户端代码**：
+**`singleton_dclp.cpp`** — 客户端代码：
 
 ```cpp
 int main() {
@@ -176,6 +180,8 @@ int main() {
 ---
 
 ### 错误用法
+
+**`singleton_bad.cpp`**
 
 ```cpp
 // 错误 1：非线程安全的懒汉式——多线程下会创建多个实例
@@ -262,6 +268,8 @@ A: 饿汉式：程序启动时就创建，简单但可能浪费资源
 
 #### 经典工厂方法（子类决定创建类型）
 
+**`factory_method.cpp`**
+
 ```cpp
 #include <iostream>
 #include <memory>
@@ -308,6 +316,8 @@ public:
 };
 ```
 
+**`factory_method.cpp`（续）**
+
 ```cpp
 // ========== 工厂层次结构 ==========
 
@@ -332,7 +342,7 @@ public:
 class RoadLogistics : public LogisticsCompany {
 public:
     std::unique_ptr<Transport> createTransport() const override {
-        return std::make_unique<Truck>();
+        return std::unique_ptr<Transport>(new Truck());
     }
 };
 
@@ -340,7 +350,7 @@ public:
 class SeaLogistics : public LogisticsCompany {
 public:
     std::unique_ptr<Transport> createTransport() const override {
-        return std::make_unique<Ship>();
+        return std::unique_ptr<Transport>(new Ship());
     }
 };
 
@@ -348,12 +358,12 @@ public:
 class AirLogistics : public LogisticsCompany {
 public:
     std::unique_ptr<Transport> createTransport() const override {
-        return std::make_unique<Airplane>();
+        return std::unique_ptr<Transport>(new Airplane());
     }
 };
 ```
 
-**客户端代码**：
+**`factory_method.cpp`** — 客户端代码：
 
 ```cpp
 // 客户端代码——只依赖抽象接口，不知道具体产品类型
@@ -399,6 +409,8 @@ int main() {
 
 简单工厂（也叫静态工厂）不是 GoF 模式，但实际开发中使用非常广泛：
 
+**`simple_factory.cpp`**
+
 ```cpp
 // 简单工厂——通过参数决定创建哪种产品
 class SimpleTransportFactory {
@@ -407,9 +419,9 @@ public:
 
     static std::unique_ptr<Transport> create(Type type) {
         switch (type) {
-            case ROAD: return std::make_unique<Truck>();
-            case SEA:  return std::make_unique<Ship>();
-            case AIR:  return std::make_unique<Airplane>();
+            case ROAD: return std::unique_ptr<Transport>(new Truck());
+            case SEA:  return std::unique_ptr<Transport>(new Ship());
+            case AIR:  return std::unique_ptr<Transport>(new Airplane());
         }
         return nullptr;
     }
@@ -424,6 +436,8 @@ t->deliver("Cargo");
 
 ### 错误用法
 
+**`factory_bad.cpp`**
+
 ```cpp
 // 错误 1：工厂方法返回裸指针——谁负责 delete？
 class BadFactory : public LogisticsCompany {
@@ -437,7 +451,7 @@ public:
 class PointlessFactory : public LogisticsCompany {
 public:
     std::unique_ptr<Transport> createTransport() const override {
-        return std::make_unique<Truck>();  // 永远返回 Truck
+        return std::unique_ptr<Transport>(new Truck());  // 永远返回 Truck
     }
 
     void deliver() {
@@ -498,6 +512,8 @@ A: 当产品类型固定且不会变化时，简单工厂甚至直接 new 就够
 
 #### 基础版：温度监控系统
 
+**`observer.cpp`**
+
 ```cpp
 #include <iostream>
 #include <memory>
@@ -555,6 +571,8 @@ public:
 };
 ```
 
+**`observer.cpp`（续）**
+
 ```cpp
 // ========== 具体观察者 ==========
 
@@ -609,7 +627,7 @@ public:
 };
 ```
 
-**客户端代码**：
+**`observer.cpp`** — 客户端代码：
 
 ```cpp
 int main() {
@@ -662,6 +680,8 @@ int main() {
 
 拉模型的变体：
 
+**`pull_observer.cpp`**
+
 ```cpp
 // 拉模型——Observer 只收到"有变化"的通知，自己去拉数据
 class PullObserver {
@@ -683,6 +703,8 @@ class SmartDisplay : public PullObserver {
 ---
 
 ### 错误用法
+
+**`observer_bad.cpp`**
 
 ```cpp
 // 错误 1：观察者析构后未取消订阅——悬空指针

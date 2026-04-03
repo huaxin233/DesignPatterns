@@ -64,7 +64,7 @@ public:
 class RoadLogistics : public LogisticsCompany {
 public:
     std::unique_ptr<Transport> createTransport() const override {
-        return std::make_unique<Truck>();
+        return std::unique_ptr<Transport>(new Truck());
     }
 };
 
@@ -72,7 +72,7 @@ public:
 class SeaLogistics : public LogisticsCompany {
 public:
     std::unique_ptr<Transport> createTransport() const override {
-        return std::make_unique<Ship>();
+        return std::unique_ptr<Transport>(new Ship());
     }
 };
 
@@ -80,7 +80,7 @@ public:
 class AirLogistics : public LogisticsCompany {
 public:
     std::unique_ptr<Transport> createTransport() const override {
-        return std::make_unique<Airplane>();
+        return std::unique_ptr<Transport>(new Airplane());
     }
 };
 
