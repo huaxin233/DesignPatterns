@@ -144,14 +144,14 @@ public:
 ```cpp
 int main() {
     // 创建文件
-    auto file1 = std::make_unique<File>("report.pdf", 1024);
-    auto file2 = std::make_unique<File>("notes.txt", 128);
-    auto file3 = std::make_unique<File>("image.png", 2048);
+    auto file1 = std::unique_ptr<File>(new File("report.pdf", 1024));
+    auto file2 = std::unique_ptr<File>(new File("notes.txt", 128));
+    auto file3 = std::unique_ptr<File>(new File("image.png", 2048));
 
     // 创建子文件夹
-    auto subFolder = std::make_unique<Folder>("images");
-    subFolder->add(std::make_unique<File>("photo1.jpg", 512));
-    subFolder->add(std::make_unique<File>("photo2.jpg", 768));
+    auto subFolder = std::unique_ptr<Folder>(new Folder("images"));
+    subFolder->add(std::unique_ptr<File>(new File("photo1.jpg", 512)));
+    subFolder->add(std::unique_ptr<File>(new File("photo2.jpg", 768)));
 
     // 创建根文件夹
     Folder root("root");
@@ -323,21 +323,21 @@ public:
         // 第一次使用时才加载真实图片
         if (!realImage_) {
             std::cout << "[Proxy] Lazy loading: " << filename_ << "\n";
-            realImage_ = std::make_unique<RealImage>(filename_);
+            realImage_ = std::unique_ptr<RealImage>(new RealImage(filename_));
         }
         realImage_->display();
     }
 
     int getWidth() const override {
         if (!realImage_) {
-            realImage_ = std::make_unique<RealImage>(filename_);
+            realImage_ = std::unique_ptr<RealImage>(new RealImage(filename_));
         }
         return realImage_->getWidth();
     }
 
     int getHeight() const override {
         if (!realImage_) {
-            realImage_ = std::make_unique<RealImage>(filename_);
+            realImage_ = std::unique_ptr<RealImage>(new RealImage(filename_));
         }
         return realImage_->getHeight();
     }
@@ -349,7 +349,7 @@ public:
 ```cpp
 int main() {
     // 创建代理对象（此时不加载真实图片）
-    std::unique_ptr<Image> image = std::make_unique<ImageProxy>("photo.jpg");
+    std::unique_ptr<Image> image = std::unique_ptr<ImageProxy>(new ImageProxy("photo.jpg"));
 
     std::cout << "Image created, not loaded yet.\n";
 
@@ -402,7 +402,7 @@ private:
 
 public:
     explicit ResourceProxy(const std::string& role)
-        : userRole_(role), realResource_(std::make_unique<RealSensitiveResource>()) {}
+        : userRole_(role), realResource_(std::unique_ptr<SensitiveResource>(new RealSensitiveResource())) {}
 
     void access() const override {
         if (!hasPermission()) {
@@ -420,9 +420,9 @@ public:
 ```cpp
 int main() {
     std::unique_ptr<SensitiveResource> userAccess =
-        std::make_unique<ResourceProxy>("user");
+        std::unique_ptr<ResourceProxy>(new ResourceProxy("user"));
     std::unique_ptr<SensitiveResource> adminAccess =
-        std::make_unique<ResourceProxy>("admin");
+        std::unique_ptr<ResourceProxy>(new ResourceProxy("admin"));
 
     userAccess->access();
     // Output: Access denied! Requires admin or manager role.
@@ -645,7 +645,7 @@ public:
 int main() {
     // 组合 1：TV + 普通遥控器
     std::unique_ptr<RemoteControl> tvRemote =
-        std::make_unique<RemoteControl>(std::make_unique<TV>());
+        std::unique_ptr<RemoteControl>(new RemoteControl(std::unique_ptr<Device>(new TV())));
     tvRemote->power();
     tvRemote->volumeUp();
     // Output:
@@ -654,8 +654,8 @@ int main() {
 
     // 组合 2：SoundSystem + 高级遥控器
     std::unique_ptr<AdvancedRemoteControl> soundRemote =
-        std::make_unique<AdvancedRemoteControl>(
-            std::make_unique<SoundSystem>());
+        std::unique_ptr<AdvancedRemoteControl>(
+            new AdvancedRemoteControl(std::unique_ptr<Device>(new SoundSystem())));
     soundRemote->power();
     soundRemote->volumeUp();
     soundRemote->mute();
@@ -666,7 +666,7 @@ int main() {
 
     // 组合 3：TV + 高级遥控器
     std::unique_ptr<AdvancedRemoteControl> tvAdvancedRemote =
-        std::make_unique<AdvancedRemoteControl>(std::make_unique<TV>());
+        std::unique_ptr<AdvancedRemoteControl>(new AdvancedRemoteControl(std::unique_ptr<Device>(new TV())));
     tvAdvancedRemote->power();
     tvAdvancedRemote->setDisplayBrightness(80);
     // Output:
