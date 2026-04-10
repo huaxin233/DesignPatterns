@@ -159,14 +159,14 @@ int main() {
     std::vector<int> data = {5, 2, 8, 1, 9, 3};
 
     // 使用冒泡排序
-    Sorter sorter(std::make_unique<BubbleSort>());
+    Sorter sorter(std::unique_ptr<BubbleSort>(new BubbleSort()));
     sorter.performSort(data);
     // Output: Sorting with BubbleSort:
     //         1 2 3 5 8 9
 
     // 运行时切换为快速排序
     data = {5, 2, 8, 1, 9, 3};
-    sorter.setStrategy(std::make_unique<QuickSort>());
+    sorter.setStrategy(std::unique_ptr<QuickSort>(new QuickSort()));
     sorter.performSort(data);
     // Output: Sorting with QuickSort:
     //         1 2 3 5 8 9
@@ -381,12 +381,12 @@ public:
 // 延迟定义——因为需要创建其他状态对象
 void IdleState::insertCoin(VendingMachine& machine) {
     std::cout << "Coin inserted.\n";
-    machine.setState(std::make_unique<HasCoinState>());
+    machine.setState(std::unique_ptr<HasCoinState>(new HasCoinState()));
 }
 
 void HasCoinState::pressButton(VendingMachine& machine) {
     std::cout << "Button pressed. Dispensing...\n";
-    machine.setState(std::make_unique<DispensingState>());
+    machine.setState(std::unique_ptr<DispensingState>(new DispensingState()));
     machine.dispense();  // 触发出货
 }
 
@@ -394,18 +394,18 @@ void DispensingState::dispense(VendingMachine& machine) {
     machine.reduceStock();
     std::cout << "Item dispensed! Stock remaining: " << machine.getStock() << "\n";
     if (machine.getStock() > 0) {
-        machine.setState(std::make_unique<IdleState>());
+        machine.setState(std::unique_ptr<IdleState>(new IdleState()));
     } else {
-        machine.setState(std::make_unique<SoldOutState>());
+        machine.setState(std::unique_ptr<SoldOutState>(new SoldOutState()));
     }
 }
 
 // 构造函数
 VendingMachine::VendingMachine(int stock) : stock_(stock) {
     if (stock > 0) {
-        state_ = std::make_unique<IdleState>();
+        state_ = std::unique_ptr<IdleState>(new IdleState());
     } else {
-        state_ = std::make_unique<SoldOutState>();
+        state_ = std::unique_ptr<SoldOutState>(new SoldOutState());
     }
 }
 ```
@@ -486,7 +486,7 @@ class BadMachine {
     void insertCoin() {
         // 上下文不应该管转换逻辑！
         if (dynamic_cast<IdleState*>(state_.get())) {
-            state_ = std::make_unique<HasCoinState>();
+            state_ = std::unique_ptr<HasCoinState>(new HasCoinState());
         }
     }
 };
