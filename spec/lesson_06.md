@@ -137,7 +137,7 @@ class IdleState : public State {
 public:
     void insertCoin(VendingMachine& machine) override {
         std::cout << "Coin accepted.\n";
-        machine.setState(std::make_unique<HasCoinState>());
+        machine.setState(std::unique_ptr<HasCoinState>(new HasCoinState()));
     }
 
     void pressButton(VendingMachine& machine) override {
@@ -157,10 +157,10 @@ public:
     void pressButton(VendingMachine& machine) override {
         if (machine.getItemCount() > 0) {
             std::cout << "Dispensing item...\n";
-            machine.setState(std::make_unique<DispensingState>());
+            machine.setState(std::unique_ptr<DispensingState>(new DispensingState()));
         } else {
             std::cout << "Sold out! Returning coin.\n";
-            machine.setState(std::make_unique<SoldOutState>());
+            machine.setState(std::unique_ptr<SoldOutState>(new SoldOutState()));
         }
     }
 
@@ -197,7 +197,7 @@ public:
 
 // VendingMachine 构造函数（放在所有 State 定义之后）
 VendingMachine::VendingMachine(int items)
-    : state_(std::make_unique<IdleState>()), itemCount_(items) {}
+    : state_(std::unique_ptr<IdleState>(new IdleState())), itemCount_(items) {}
 ```
 
 **客户端代码**：
@@ -238,7 +238,7 @@ class BadState : public State {
 
 // 错误 2：在状态类外部直接 setState（破坏状态封装）
 void clientCode(VendingMachine& m) {
-    m.setState(std::make_unique<DispensingState>());  // 跳过投币！
+    m.setState(std::unique_ptr<DispensingState>(new DispensingState()));  // 跳过投币！
     // 状态转换应该由状态类内部驱动，不是外部随意切换
 }
 
@@ -405,10 +405,10 @@ public:
 ```cpp
 int main() {
     // 构建责任链：组长 → 经理 → 总监 → CEO
-    auto chain = std::make_unique<TeamLead>("TeamLead Zhang");
-    auto& manager = chain->setNext(std::make_unique<Manager>("Manager Li"));
-    auto& director = manager.setNext(std::make_unique<Director>("Director Wang"));
-    director.setNext(std::make_unique<CEO>("CEO Chen"));
+    auto chain = std::unique_ptr<TeamLead>(new TeamLead("TeamLead Zhang"));
+    auto& manager = chain->setNext(std::unique_ptr<Manager>(new Manager("Manager Li")));
+    auto& director = manager.setNext(std::unique_ptr<Director>(new Director("Director Wang")));
+    director.setNext(std::unique_ptr<CEO>(new CEO("CEO Chen")));
 
     // 提交不同金额的报销
     chain->handle({"Office supplies",   200,   "Alice"});
@@ -514,10 +514,10 @@ public:
 ```cpp
 int main() {
     // 构建中间件链：日志 → 限流 → 认证
-    auto pipeline = std::make_unique<LogMiddleware>();
+    auto pipeline = std::unique_ptr<LogMiddleware>(new LogMiddleware());
     auto& rateLimit = pipeline->setNext(
-        std::make_unique<RateLimitMiddleware>(3));
-    rateLimit.setNext(std::make_unique<AuthMiddleware>());
+        std::unique_ptr<RateLimitMiddleware>(new RateLimitMiddleware(3)));
+    rateLimit.setNext(std::unique_ptr<AuthMiddleware>(new AuthMiddleware()));
 
     HttpRequest req{"GET", "/api/data", {{"Authorization", "Bearer token123"}}};
     pipeline->handle(req);
@@ -548,7 +548,7 @@ public:
     using Approver::Approver;
     void handle(const ExpenseRequest& request) override {
         // 把自己设为下一个处理者
-        next_ = std::make_unique<LoopHandler>("Loop");  // 死循环！
+        next_ = std::unique_ptr<LoopHandler>(new LoopHandler("Loop"));  // 死循环！
         passToNext(request);
     }
 };
@@ -831,7 +831,7 @@ class HeavyOriginator {
 public:
     auto save() {
         // 每次撤销都拷贝 100MB！应该用增量快照
-        return std::make_unique<HeavyMemento>(hugeBuffer_);
+        return std::unique_ptr<HeavyMemento>(new HeavyMemento(hugeBuffer_));
     }
 };
 
