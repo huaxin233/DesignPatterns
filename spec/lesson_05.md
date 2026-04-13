@@ -191,16 +191,16 @@ int main() {
 
     // 插入文本
     manager.executeCommand(
-        std::make_unique<InsertCommand>(editor, 0, "Hello"));
+        std::unique_ptr<InsertCommand>(new InsertCommand(editor, 0, "Hello")));
     editor.display();  // Text: "Hello"
 
     manager.executeCommand(
-        std::make_unique<InsertCommand>(editor, 5, " World"));
+        std::unique_ptr<InsertCommand>(new InsertCommand(editor, 5, " World")));
     editor.display();  // Text: "Hello World"
 
     // 删除文本
     manager.executeCommand(
-        std::make_unique<DeleteCommand>(editor, 5, 6));
+        std::unique_ptr<DeleteCommand>(new DeleteCommand(editor, 5, 6)));
     editor.display();  // Text: "Hello"
 
     // 撤销
@@ -256,10 +256,10 @@ int main() {
     CommandManager manager;
 
     // 创建宏：一键输入 "Hello World!"
-    auto macro = std::make_unique<MacroCommand>();
-    macro->addCommand(std::make_unique<InsertCommand>(editor, 0, "Hello"));
-    macro->addCommand(std::make_unique<InsertCommand>(editor, 5, " World"));
-    macro->addCommand(std::make_unique<InsertCommand>(editor, 11, "!"));
+    auto macro = std::unique_ptr<MacroCommand>(new MacroCommand());
+    macro->addCommand(std::unique_ptr<InsertCommand>(new InsertCommand(editor, 0, "Hello")));
+    macro->addCommand(std::unique_ptr<InsertCommand>(new InsertCommand(editor, 5, " World")));
+    macro->addCommand(std::unique_ptr<InsertCommand>(new InsertCommand(editor, 11, "!")));
 
     manager.executeCommand(std::move(macro));
     editor.display();  // Text: "Hello World!"
