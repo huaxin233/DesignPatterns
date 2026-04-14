@@ -116,7 +116,7 @@ private:
     std::unique_ptr<House> house_;
 
 public:
-    WoodenHouseBuilder() : house_(std::make_unique<House>()) {}
+    WoodenHouseBuilder() : house_(std::unique_ptr<House>(new House)) {}
 
     void buildFoundation() override {
         house_->setFoundation("Wooden piles");
@@ -146,7 +146,7 @@ private:
     std::unique_ptr<House> house_;
 
 public:
-    StoneHouseBuilder() : house_(std::make_unique<House>()) {}
+    StoneHouseBuilder() : house_(std::unique_ptr<House>(new House)) {}
 
     void buildFoundation() override {
         house_->setFoundation("Concrete foundation");
@@ -219,7 +219,6 @@ int main() {
 #include <iostream>
 #include <string>
 #include <vector>
-#include <optional>
 
 class HttpRequest {
 public:
@@ -227,7 +226,8 @@ public:
     std::string method;
     std::string url;
     std::vector<std::pair<std::string, std::string>> headers;
-    std::optional<std::string> body;
+    std::string body;
+    bool hasBody_ = false;
     int timeout_ms = 30000;
 
     void send() const {
@@ -235,8 +235,8 @@ public:
         for (const auto& [key, value] : headers) {
             std::cout << "  " << key << ": " << value << "\n";
         }
-        if (body) {
-            std::cout << "  Body: " << *body << "\n";
+        if (hasBody_) {
+            std::cout << "  Body: " << body << "\n";
         }
         std::cout << "  Timeout: " << timeout_ms << "ms\n";
     }
@@ -263,8 +263,9 @@ public:
         return *this;
     }
 
-    HttpRequestBuilder& setBody(const std::string& body) {
-        request_.body = body;
+    HttpRequestBuilder& setBody(const std::string& b) {
+        request_.body = b;
+        request_.hasBody_ = true;
         return *this;
     }
 
@@ -445,7 +446,7 @@ public:
 
     std::unique_ptr<Monster> clone() const override {
         // 拷贝构造：复制所有字段
-        return std::make_unique<Goblin>(*this);
+        return std::unique_ptr<Goblin>(new Goblin(*this));
     }
 
     void display() const override {
@@ -472,7 +473,7 @@ public:
     }
 
     std::unique_ptr<Monster> clone() const override {
-        return std::make_unique<Dragon>(*this);
+        return std::unique_ptr<Dragon>(new Dragon(*this));
     }
 
     void display() const override {
@@ -546,9 +547,9 @@ int main() {
 
     // 注册原型模板
     registry.registerPrototype("goblin",
-        std::make_unique<Goblin>("Short Sword"));
+        std::unique_ptr<Goblin>(new Goblin("Short Sword")));
     registry.registerPrototype("dragon",
-        std::make_unique<Dragon>("Fire", 20));
+        std::unique_ptr<Dragon>(new Dragon("Fire", 20)));
 
     // 通过字符串键快速创建
     auto enemy1 = registry.create("goblin");
@@ -574,7 +575,7 @@ private:
 
 public:
     DeepCopyExample(const std::string& name, int size)
-        : name_(name), dataSize_(size), data_(std::make_unique<int[]>(size)) {
+        : name_(name), dataSize_(size), data_(new int[size]) {
         for (int i = 0; i < size; ++i) {
             data_[i] = i * 10;
         }
@@ -582,7 +583,7 @@ public:
 
     // 深拷贝：复制堆上的数据，而不是指针
     std::unique_ptr<DeepCopyExample> clone() const {
-        auto copy = std::make_unique<DeepCopyExample>(name_, dataSize_);
+        auto copy = std::unique_ptr<DeepCopyExample>(new DeepCopyExample(name_, dataSize_));
         // 逐元素复制堆数据
         for (int i = 0; i < dataSize_; ++i) {
             copy->data_[i] = data_[i];
@@ -610,7 +611,7 @@ public:
 class BadGoblin : public Monster {
 public:
     std::unique_ptr<Monster> clone() const override {
-        auto copy = std::make_unique<BadGoblin>();
+        auto copy = std::unique_ptr<BadGoblin>(new BadGoblin());
         // 忘记复制 name, health, attack, defense！
         return copy;
     }
@@ -621,7 +622,7 @@ class BadClone : public Monster {
     int* sharedData_;  // 裸指针
 public:
     std::unique_ptr<Monster> clone() const override {
-        auto copy = std::make_unique<BadClone>(*this);
+        auto copy = std::unique_ptr<BadClone>(new BadClone(*this));
         // 默认拷贝构造只复制指针，两个对象共享同一块内存！
         // delete 其中一个后，另一个变成悬挂指针
         return copy;
@@ -647,7 +648,7 @@ Q: C++ 中如何正确实现 clone()？
 A: 1. 基类声明 virtual clone()，返回 unique_ptr<Base>
    2. 子类 override clone()，在其中用拷贝构造创建自身
    3. 确保拷贝构造函数实现了深拷贝
-   4. 使用 std::make_unique<Derived>(*this) 是最常见的做法
+   4. 使用 std::unique_ptr<Derived>(new Derived(*this)) 是最常见的做法
 
 Q: 什么时候用 Prototype 而不是 new？
 A: 1. 创建成本高（需要读文件/网络/数据库来初始化）
@@ -806,13 +807,13 @@ public:
 class WindowsUIFactory : public UIFactory {
 public:
     std::unique_ptr<Button> createButton() const override {
-        return std::make_unique<WindowsButton>();
+        return std::unique_ptr<WindowsButton>(new WindowsButton());
     }
     std::unique_ptr<TextBox> createTextBox() const override {
-        return std::make_unique<WindowsTextBox>();
+        return std::unique_ptr<WindowsTextBox>(new WindowsTextBox());
     }
     std::unique_ptr<Checkbox> createCheckbox() const override {
-        return std::make_unique<WindowsCheckbox>();
+        return std::unique_ptr<WindowsCheckbox>(new WindowsCheckbox());
     }
 };
 
@@ -820,13 +821,13 @@ public:
 class MacUIFactory : public UIFactory {
 public:
     std::unique_ptr<Button> createButton() const override {
-        return std::make_unique<MacButton>();
+        return std::unique_ptr<MacButton>(new MacButton());
     }
     std::unique_ptr<TextBox> createTextBox() const override {
-        return std::make_unique<MacTextBox>();
+        return std::unique_ptr<MacTextBox>(new MacTextBox());
     }
     std::unique_ptr<Checkbox> createCheckbox() const override {
-        return std::make_unique<MacCheckbox>();
+        return std::unique_ptr<MacCheckbox>(new MacCheckbox());
     }
 };
 ```
@@ -866,9 +867,9 @@ int main() {
     std::unique_ptr<UIFactory> factory;
 
     #ifdef _WIN32
-        factory = std::make_unique<WindowsUIFactory>();
+        factory = std::unique_ptr<WindowsUIFactory>(new WindowsUIFactory());
     #else
-        factory = std::make_unique<MacUIFactory>();
+        factory = std::unique_ptr<MacUIFactory>(new MacUIFactory());
     #endif
 
     Application app(*factory);
