@@ -394,7 +394,9 @@ public:
         }
         else if (event == "leaving_home") {
             // 离家 → 关灯 + 关空调 + 开安防 + 关窗帘
-            for (auto& [name, device] : devices_) {
+            for (auto& kv : devices_) {
+                const std::string& name = kv.first;
+                SmartDevice* device = kv.second.get();
                 if (name != sender->getName()) {
                     device->receiveEvent("owner_away", sender->getName());
                 }
