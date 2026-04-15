@@ -475,13 +475,13 @@ public:
 ```cpp
 int main() {
     // 构建规则：(hasRole(admin) OR (hasRole(editor) AND level >= 5))
-    auto rule = std::make_unique<OrExpression>(
-        std::make_unique<RoleExpression>("admin"),
-        std::make_unique<AndExpression>(
-            std::make_unique<RoleExpression>("editor"),
-            std::make_unique<AttributeExpression>("level", 5)
+    auto rule = std::unique_ptr<OrExpression>(new OrExpression(
+        std::unique_ptr<RoleExpression>(new RoleExpression("admin")),
+        std::unique_ptr<AndExpression>(new AndExpression(
+            std::unique_ptr<RoleExpression>(new RoleExpression("editor")),
+            std::unique_ptr<AttributeExpression>(new AttributeExpression("level", 5))
         )
-    );
+    ));
 
     std::cout << "Rule: " << rule->toString() << "\n\n";
 
@@ -831,12 +831,12 @@ public:
 int main() {
     // 构建文档结构
     std::vector<std::unique_ptr<DocumentElement>> doc;
-    doc.push_back(std::make_unique<Heading>("Design Patterns", 1));
-    doc.push_back(std::make_unique<Paragraph>("Design patterns are reusable solutions."));
-    doc.push_back(std::make_unique<Heading>("Visitor Pattern", 2));
-    doc.push_back(std::make_unique<Paragraph>("Visitor separates algorithms from objects."));
-    doc.push_back(std::make_unique<CodeBlock>("element->accept(visitor);", "cpp"));
-    doc.push_back(std::make_unique<Image>("visitor.png", "Visitor UML diagram"));
+    doc.push_back(std::unique_ptr<Heading>(new Heading("Design Patterns", 1)));
+    doc.push_back(std::unique_ptr<Paragraph>(new Paragraph("Design patterns are reusable solutions.")));
+    doc.push_back(std::unique_ptr<Heading>(new Heading("Visitor Pattern", 2)));
+    doc.push_back(std::unique_ptr<Paragraph>(new Paragraph("Visitor separates algorithms from objects.")));
+    doc.push_back(std::unique_ptr<CodeBlock>(new CodeBlock("element->accept(visitor);", "cpp")));
+    doc.push_back(std::unique_ptr<Image>(new Image("visitor.png", "Visitor UML diagram")));
 
     // 导出为 HTML
     HtmlExportVisitor htmlExporter;
